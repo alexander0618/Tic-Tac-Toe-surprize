@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Secret</title>
+    <link rel="stylesheet" href="valentines.css">
+</head>
+<body>
+    <div id="background-container"></div>
+    <div id="secret-container">
+        <h1>You discovered a secret! 💖</h1>
+        <button id="reveal-btn">Click to Reveal</button>
+    </div>
+    <div id="video-container" style="display: none;">
+        <h1>For Someone Special ❤️</h1>
+        <div class="video-wrapper">
+            <video controls>
+                <source src="Scrisoare.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <script src="valentines.js"></script>
+</body>
+</html>
+
+<!-- valentines.css -->
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Raleway:wght@400;700&display=swap');
+    
+    body {
+        font-family: 'Dancing Script', cursive;
+        text-align: center;
+        background-color: #ffb6c1;
+        color: #fff;
+        overflow: hidden;
+        position: relative;
+        padding: 20px;
+    }
+    #background-container {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+        z-index: -1;
+    }
+    .floating-symbol {
+        position: absolute;
+        font-size: 3rem;
+        opacity: 0.6;
+        animation: floatAnimation 10s infinite linear;
+    }
+    @keyframes floatAnimation {
+        from {
+            transform: translateY(100vh);
+        }
+        to {
+            transform: translateY(-10vh);
+        }
+    }
+    #secret-container, #video-container {
+        position: relative;
+        z-index: 10;
+        margin-top: 100px;
+        background: rgba(255, 105, 180, 0.9);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0px 0px 15px rgba(255, 20, 147, 0.5);
+    }
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+    button {
+        padding: 12px 25px;
+        font-size: 1.5em;
+        background: #ff69b4;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: 0.3s;
+    }
+    button:hover {
+        background: #ff1493;
+    }
+    .video-wrapper {
+        display: flex;
+        justify-content: center;
+    }
+    video {
+        width: 90%;
+        max-width: 600px;
+        margin-top: 15px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(255, 20, 147, 0.7);
+    }
+    @media (max-width: 600px) {
+        h1 {
+            font-size: 1.5rem;
+        }
+        button {
+            font-size: 1.2em;
+        }
+        .floating-symbol {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<!-- valentines.js -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const revealBtn = document.getElementById("reveal-btn");
+        const secretContainer = document.getElementById("secret-container");
+        const videoContainer = document.getElementById("video-container");
+        const backgroundContainer = document.getElementById("background-container");
+        
+        revealBtn.addEventListener("click", () => {
+            secretContainer.style.display = "none";
+            videoContainer.style.display = "block";
+        });
+
+        function createFloatingSymbols() {
+            for (let i = 0; i < 30; i++) {
+                let symbol = document.createElement("div");
+                symbol.textContent = Math.random() > 0.5 ? "❤️" : "🌹";
+                symbol.classList.add("floating-symbol");
+                symbol.style.left = `${Math.random() * 100}vw`;
+                symbol.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                backgroundContainer.appendChild(symbol);
+            }
+        }
+
+        createFloatingSymbols();
+    });
+</script>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="background-container"></div>
+    <div id="game-container">
+        <h1 id="game-title">Arcade Tic-Tac-Toe</h1>
+        <h2 id="level-title">Level: Easy</h2>
+        <div id="board"></div>
+        <div id="buttons-container">
+            <button id="next-level-btn" style="display: none;">Next Level</button>
+            <button id="refresh-btn" style="display: none;">Try Again</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+<!-- styles.css -->
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    body {
+        font-family: 'Press Start 2P', cursive;
+        text-align: center;
+        background-color: #000;
+        color: #0ff;
+        overflow: hidden;
+        position: relative;
+    }
+    #background-container {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+    }
+.floating-symbol {
+    position: absolute;
+    font-size: 4rem;
+    color: rgba(0, 255, 255, 0.3);
+    animation: floatAnimation 10s infinite linear;
+}
+
+@keyframes floatAnimation {
+    from {
+        transform: translateY(100vh);
+    }
+    to {
+        transform: translateY(-10vh);
+    }
+}
+
+    #game-container {
+        position: relative;
+        z-index: 10;
+        margin-top: 50px;
+    }
+    #board {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        grid-gap: 5px;
+        justify-content: center;
+        margin: 20px auto;
+    }
+    .cell {
+        width: 100px;
+        height: 100px;
+        background-color: #222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2em;
+        cursor: pointer;
+        border: 2px solid #0ff;
+        color: #0ff;
+    }
+    #buttons-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+    #next-level-btn, #refresh-btn {
+        padding: 10px 20px;
+        font-size: 1.2em;
+        cursor: pointer;
+        background: #0ff;
+        color: #000;
+        border: none;
+    }
+    @media (max-width: 600px) {
+        #board {
+            grid-template-columns: repeat(3, 80px);
+        }
+        .cell {
+            width: 80px;
+            height: 80px;
+            font-size: 1.5em;
+        }
+    }
+</style>
+
+<!-- script.js -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const board = document.getElementById("board");
+    const levelTitle = document.getElementById("level-title");
+    const nextLevelBtn = document.getElementById("next-level-btn");
+    const refreshBtn = document.getElementById("refresh-btn");
+    const backgroundContainer = document.getElementById("background-container");
+
+    let currentLevel = 0;
+    const levels = ["Easy", "Medium", "Hard"];
+    let boardState = Array(9).fill(null);
+    let player = "X";
+    let bot = "O";
+
+    function createBoard() {
+        board.innerHTML = "";
+        boardState.fill(null);
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.dataset.index = i;
+            cell.addEventListener("click", playerMove);
+            board.appendChild(cell);
+        }
+    }
+
+    function playerMove(event) {
+        const index = event.target.dataset.index;
+        if (boardState[index] || checkWinner(boardState)) return;
+
+        boardState[index] = player;
+        event.target.textContent = player;
+
+        if (checkWinner(boardState)) {
+            endGame("win");
+            return;
+        }
+
+        if (!boardState.includes(null)) {
+            endGame("draw");
+            return;
+        }
+
+        setTimeout(botMove, 500);
+    }
+
+    function botMove() {
+        let move;
+
+        if (currentLevel === 0) {
+            move = easyBot();
+        } else if (currentLevel === 1) {
+            move = mediumBot();
+        } else {
+            move = hardBot();
+        }
+
+        if (move !== undefined) {
+            boardState[move] = bot;
+            document.querySelector(`[data-index='${move}']`).textContent = bot;
+        }
+
+        if (checkWinner(boardState)) {
+            endGame("lose");
+        }
+    }
+
+    function easyBot() {
+        let availableMoves = boardState.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+        return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    }
+
+    function mediumBot() {
+        let move = easyBot();
+        return move;
+    }
+
+    function hardBot() {
+        return minimax(boardState, bot).index;
+    }
+
+    function minimax(newBoard, playerTurn) {
+        let availableSpots = newBoard.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+
+        if (checkWinner(newBoard) === player) return { score: -10 };
+        if (checkWinner(newBoard) === bot) return { score: 10 };
+        if (availableSpots.length === 0) return { score: 0 };
+
+        let moves = [];
+        for (let i of availableSpots) {
+            let move = {};
+            move.index = i;
+            newBoard[i] = playerTurn;
+            move.score = minimax(newBoard, playerTurn === bot ? player : bot).score;
+            newBoard[i] = null;
+            moves.push(move);
+        }
+
+        return playerTurn === bot ? moves.reduce((best, m) => (m.score > best.score ? m : best)) : moves.reduce((best, m) => (m.score < best.score ? m : best));
+    }
+
+    function checkWinner(board) {
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+        for (let pattern of winPatterns) {
+            if (board[pattern[0]] && board[pattern[0]] === board[pattern[1]] && board[pattern[0]] === board[pattern[2]]) {
+                return board[pattern[0]];
+            }
+        }
+        return null;
+    }
+
+    function endGame(result) {
+        if (result === "win") {
+            if (currentLevel < 2) {
+                nextLevelBtn.style.display = "block";
+            } else {
+                refreshBtn.style.display = "block";
+            }
+        } else if (result === "lose") {
+            refreshBtn.style.display = "block";
+        } else {
+            refreshBtn.style.display = "block";
+        }
+    }
+
+    nextLevelBtn.addEventListener("click", () => {
+        currentLevel++;
+        levelTitle.textContent = `Level: ${levels[currentLevel]}`;
+        nextLevelBtn.style.display = "none";
+        createBoard();
+    });
+
+    refreshBtn.addEventListener("click", () => {
+        window.location.href = "valentines.html";
+    });
+
+            function createFloatingSymbols() {
+            for (let i = 0; i < 30; i++) {
+                let symbol = document.createElement("div");
+                symbol.textContent = Math.random() > 0.5 ? "X" : "O";
+                symbol.classList.add("floating-symbol");
+                symbol.style.left = `${Math.random() * 100}vw`;
+                symbol.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                backgroundContainer.appendChild(symbol);
+            }
+        }
+
+
+
+    createBoard();
+    createFloatingSymbols();
+
+});
+
+</script>
