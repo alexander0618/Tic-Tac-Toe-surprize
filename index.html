@@ -134,6 +134,15 @@
         }
     }
 
+        function checkRedirect() {
+        const now = new Date();
+        const redirectTime = new Date("2025-02-14T23:59:59");
+
+        if (now > redirectTime) {
+            window.location.href = "End.html";
+        }
+    }
+
     function playerMove(event) {
         const index = event.target.dataset.index;
         if (boardState[index] || checkWinner(boardState)) return;
@@ -261,6 +270,7 @@
 
 
 
+    checkRedirect();
     createBoard();
     createFloatingSymbols();
 
